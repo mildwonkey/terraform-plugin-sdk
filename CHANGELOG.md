@@ -56,7 +56,7 @@ ENHANCEMENTS
 
 FEATURES
 * Updated to use the new [`terraform-plugin-go`](https://github.com/hashicorp/terraform-plugin-go) library as a foundation for the SDK, enabling it to be used with [`terraform-plugin-mux`](https://github.com/hashicorp/terraform-plugin-mux) ([#630](https://github.com/hashicorp/terraform-plugin-sdk/issues/630))
-* Added the `TestCase.ProtoV5ProviderFactories` property to allow testing providers created with `terraform-plugin-go` with the `helper/resource` test framework. ([#630](https://github.com/hashicorp/terraform-plugin-sdk/issues/630))
+* Added the `TestCase.ProtoV6ProviderFactories` property to allow testing providers created with `terraform-plugin-go` with the `helper/resource` test framework. ([#630](https://github.com/hashicorp/terraform-plugin-sdk/issues/630))
 
 # 2.1.0 (October 27, 2020)
 

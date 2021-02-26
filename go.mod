@@ -42,3 +42,5 @@ require (
 	golang.org/x/tools v0.0.0-20200713011307-fd294ab11aed
 	google.golang.org/grpc v1.32.0
 )
+
+replace github.com/hashicorp/terraform-plugin-go => /Users/kristin/go/src/github.com/mildwonkey/terraform-plugin-go

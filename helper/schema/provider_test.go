@@ -84,7 +84,7 @@ func TestProviderGetSchema(t *testing.T) {
 			}),
 		},
 	}
-	got, err := p.GetSchema(&terraform.ProviderSchemaRequest{
+	got, err := p.GetProviderSchema(&terraform.ProviderSchemaRequest{
 		ResourceTypes: []string{"foo", "bar"},
 		DataSources:   []string{"baz", "bar"},
 	})

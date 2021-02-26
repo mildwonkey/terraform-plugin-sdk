@@ -13,14 +13,14 @@ import (
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/go-cty/cty/msgpack"
 
-	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/internal/plugin/convert"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 // The GRPCProviderServer will directly implement the go protobuf server
-var _ tfprotov5.ProviderServer = (*GRPCProviderServer)(nil)
+var _ tfprotov6.ProviderServer = (*GRPCProviderServer)(nil)
 
 func TestUpgradeState_jsonState(t *testing.T) {
 	r := &Resource{
@@ -74,10 +74,10 @@ func TestUpgradeState_jsonState(t *testing.T) {
 		},
 	})
 
-	req := &tfprotov5.UpgradeResourceStateRequest{
+	req := &tfprotov6.UpgradeResourceStateRequest{
 		TypeName: "test",
 		Version:  0,
-		RawState: &tfprotov5.RawState{
+		RawState: &tfprotov6.RawState{
 			JSON: []byte(`{"id":"bar","zero":0}`),
 		},
 	}
@@ -127,10 +127,10 @@ func TestUpgradeState_jsonStateBigInt(t *testing.T) {
 		},
 	})
 
-	req := &tfprotov5.UpgradeResourceStateRequest{
+	req := &tfprotov6.UpgradeResourceStateRequest{
 		TypeName: "test",
 		Version:  0,
-		RawState: &tfprotov5.RawState{
+		RawState: &tfprotov6.RawState{
 			JSON: []byte(`{"id":"bar","int":7227701560655103598}`),
 		},
 	}
@@ -268,10 +268,10 @@ func TestUpgradeState_removedAttr(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			req := &tfprotov5.UpgradeResourceStateRequest{
+			req := &tfprotov6.UpgradeResourceStateRequest{
 				TypeName: tc.name,
 				Version:  0,
-				RawState: &tfprotov5.RawState{
+				RawState: &tfprotov6.RawState{
 					JSON: []byte(tc.raw),
 				},
 			}
@@ -385,11 +385,11 @@ func TestUpgradeState_flatmapState(t *testing.T) {
 		},
 	})
 
-	testReqs := []*tfprotov5.UpgradeResourceStateRequest{
+	testReqs := []*tfprotov6.UpgradeResourceStateRequest{
 		{
 			TypeName: "test",
 			Version:  0,
-			RawState: &tfprotov5.RawState{
+			RawState: &tfprotov6.RawState{
 				Flatmap: map[string]string{
 					"id":   "bar",
 					"zero": "0",
@@ -399,7 +399,7 @@ func TestUpgradeState_flatmapState(t *testing.T) {
 		{
 			TypeName: "test",
 			Version:  1,
-			RawState: &tfprotov5.RawState{
+			RawState: &tfprotov6.RawState{
 				Flatmap: map[string]string{
 					"id":  "bar",
 					"one": "1",
@@ -410,7 +410,7 @@ func TestUpgradeState_flatmapState(t *testing.T) {
 		{
 			TypeName: "test",
 			Version:  2,
-			RawState: &tfprotov5.RawState{
+			RawState: &tfprotov6.RawState{
 				Flatmap: map[string]string{
 					"id":  "bar",
 					"two": "2",
@@ -420,14 +420,14 @@ func TestUpgradeState_flatmapState(t *testing.T) {
 		{
 			TypeName: "test",
 			Version:  2,
-			RawState: &tfprotov5.RawState{
+			RawState: &tfprotov6.RawState{
 				JSON: []byte(`{"id":"bar","two":2}`),
 			},
 		},
 		{
 			TypeName: "test",
 			Version:  3,
-			RawState: &tfprotov5.RawState{
+			RawState: &tfprotov6.RawState{
 				Flatmap: map[string]string{
 					"id":    "bar",
 					"three": "3",
@@ -437,14 +437,14 @@ func TestUpgradeState_flatmapState(t *testing.T) {
 		{
 			TypeName: "test",
 			Version:  3,
-			RawState: &tfprotov5.RawState{
+			RawState: &tfprotov6.RawState{
 				JSON: []byte(`{"id":"bar","three":3}`),
 			},
 		},
 		{
 			TypeName: "test",
 			Version:  4,
-			RawState: &tfprotov5.RawState{
+			RawState: &tfprotov6.RawState{
 				Flatmap: map[string]string{
 					"id":   "bar",
 					"four": "4",
@@ -454,7 +454,7 @@ func TestUpgradeState_flatmapState(t *testing.T) {
 		{
 			TypeName: "test",
 			Version:  4,
-			RawState: &tfprotov5.RawState{
+			RawState: &tfprotov6.RawState{
 				JSON: []byte(`{"id":"bar","four":4}`),
 			},
 		},
@@ -509,11 +509,11 @@ func TestUpgradeState_flatmapStateMissingMigrateState(t *testing.T) {
 		},
 	})
 
-	testReqs := []*tfprotov5.UpgradeResourceStateRequest{
+	testReqs := []*tfprotov6.UpgradeResourceStateRequest{
 		{
 			TypeName: "test",
 			Version:  0,
-			RawState: &tfprotov5.RawState{
+			RawState: &tfprotov6.RawState{
 				Flatmap: map[string]string{
 					"id":  "bar",
 					"one": "1",
@@ -523,7 +523,7 @@ func TestUpgradeState_flatmapStateMissingMigrateState(t *testing.T) {
 		{
 			TypeName: "test",
 			Version:  1,
-			RawState: &tfprotov5.RawState{
+			RawState: &tfprotov6.RawState{
 				Flatmap: map[string]string{
 					"id":  "bar",
 					"one": "1",
@@ -533,7 +533,7 @@ func TestUpgradeState_flatmapStateMissingMigrateState(t *testing.T) {
 		{
 			TypeName: "test",
 			Version:  1,
-			RawState: &tfprotov5.RawState{
+			RawState: &tfprotov6.RawState{
 				JSON: []byte(`{"id":"bar","one":1}`),
 			},
 		},
@@ -606,12 +606,12 @@ func TestPlanResourceChange(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	testReq := &tfprotov5.PlanResourceChangeRequest{
+	testReq := &tfprotov6.PlanResourceChangeRequest{
 		TypeName: "test",
-		PriorState: &tfprotov5.DynamicValue{
+		PriorState: &tfprotov6.DynamicValue{
 			MsgPack: priorState,
 		},
-		ProposedNewState: &tfprotov5.DynamicValue{
+		ProposedNewState: &tfprotov6.DynamicValue{
 			MsgPack: proposedState,
 		},
 	}
@@ -663,12 +663,12 @@ func TestPlanResourceChange_bigint(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	testReq := &tfprotov5.PlanResourceChangeRequest{
+	testReq := &tfprotov6.PlanResourceChangeRequest{
 		TypeName: "test",
-		PriorState: &tfprotov5.DynamicValue{
+		PriorState: &tfprotov6.DynamicValue{
 			MsgPack: priorState,
 		},
-		ProposedNewState: &tfprotov5.DynamicValue{
+		ProposedNewState: &tfprotov6.DynamicValue{
 			MsgPack: proposedState,
 		},
 	}
@@ -736,12 +736,12 @@ func TestApplyResourceChange(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	testReq := &tfprotov5.ApplyResourceChangeRequest{
+	testReq := &tfprotov6.ApplyResourceChangeRequest{
 		TypeName: "test",
-		PriorState: &tfprotov5.DynamicValue{
+		PriorState: &tfprotov6.DynamicValue{
 			MsgPack: priorState,
 		},
-		PlannedState: &tfprotov5.DynamicValue{
+		PlannedState: &tfprotov6.DynamicValue{
 			MsgPack: plannedState,
 		},
 	}
@@ -798,12 +798,12 @@ func TestApplyResourceChange_bigint(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	testReq := &tfprotov5.ApplyResourceChangeRequest{
+	testReq := &tfprotov6.ApplyResourceChangeRequest{
 		TypeName: "test",
-		PriorState: &tfprotov5.DynamicValue{
+		PriorState: &tfprotov6.DynamicValue{
 			MsgPack: priorState,
 		},
-		PlannedState: &tfprotov5.DynamicValue{
+		PlannedState: &tfprotov6.DynamicValue{
 			MsgPack: plannedState,
 		},
 	}
@@ -832,7 +832,7 @@ func TestApplyResourceChange_bigint(t *testing.T) {
 	}
 }
 
-func TestPrepareProviderConfig(t *testing.T) {
+func TestValidateProviderConfig(t *testing.T) {
 	for _, tc := range []struct {
 		Name         string
 		Schema       map[string]*Schema
@@ -967,13 +967,13 @@ func TestPrepareProviderConfig(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			testReq := &tfprotov5.PrepareProviderConfigRequest{
-				Config: &tfprotov5.DynamicValue{
+			testReq := &tfprotov6.ValidateProviderConfigRequest{
+				Config: &tfprotov6.DynamicValue{
 					MsgPack: rawConfig,
 				},
 			}
 
-			resp, err := server.PrepareProviderConfig(nil, testReq)
+			resp, err := server.ValidateProviderConfig(nil, testReq)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -989,7 +989,7 @@ func TestPrepareProviderConfig(t *testing.T) {
 
 			// we should have no errors past this point
 			for _, d := range resp.Diagnostics {
-				if d.Severity == tfprotov5.DiagnosticSeverityError {
+				if d.Severity == tfprotov6.DiagnosticSeverityError {
 					t.Fatal(resp.Diagnostics)
 				}
 			}
@@ -1574,12 +1574,12 @@ func TestStopContext_grpc(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	testReq := &tfprotov5.ApplyResourceChangeRequest{
+	testReq := &tfprotov6.ApplyResourceChangeRequest{
 		TypeName: "test",
-		PriorState: &tfprotov5.DynamicValue{
+		PriorState: &tfprotov6.DynamicValue{
 			MsgPack: priorState,
 		},
-		PlannedState: &tfprotov5.DynamicValue{
+		PlannedState: &tfprotov6.DynamicValue{
 			MsgPack: plannedState,
 		},
 	}
@@ -1640,12 +1640,12 @@ func TestStopContext_stop(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	testReq := &tfprotov5.ApplyResourceChangeRequest{
+	testReq := &tfprotov6.ApplyResourceChangeRequest{
 		TypeName: "test",
-		PriorState: &tfprotov5.DynamicValue{
+		PriorState: &tfprotov6.DynamicValue{
 			MsgPack: priorState,
 		},
-		PlannedState: &tfprotov5.DynamicValue{
+		PlannedState: &tfprotov6.DynamicValue{
 			MsgPack: plannedState,
 		},
 	}
@@ -1658,7 +1658,7 @@ func TestStopContext_stop(t *testing.T) {
 		}
 		close(doneCh)
 	}()
-	server.StopProvider(context.Background(), &tfprotov5.StopProviderRequest{})
+	server.StopProvider(context.Background(), &tfprotov6.StopProviderRequest{})
 	select {
 	case <-doneCh:
 	case <-time.After(5 * time.Second):
@@ -1705,12 +1705,12 @@ func TestStopContext_stopReset(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	testReq := &tfprotov5.ApplyResourceChangeRequest{
+	testReq := &tfprotov6.ApplyResourceChangeRequest{
 		TypeName: "test",
-		PriorState: &tfprotov5.DynamicValue{
+		PriorState: &tfprotov6.DynamicValue{
 			MsgPack: priorState,
 		},
-		PlannedState: &tfprotov5.DynamicValue{
+		PlannedState: &tfprotov6.DynamicValue{
 			MsgPack: plannedState,
 		},
 	}
@@ -1727,7 +1727,7 @@ func TestStopContext_stopReset(t *testing.T) {
 		}
 		close(d)
 	}(doneCh)
-	server.StopProvider(context.Background(), &tfprotov5.StopProviderRequest{})
+	server.StopProvider(context.Background(), &tfprotov6.StopProviderRequest{})
 	select {
 	case <-doneCh:
 	case <-time.After(5 * time.Second):
@@ -1746,7 +1746,7 @@ func TestStopContext_stopReset(t *testing.T) {
 		}
 		close(d)
 	}(doneCh)
-	server.StopProvider(context.Background(), &tfprotov5.StopProviderRequest{})
+	server.StopProvider(context.Background(), &tfprotov6.StopProviderRequest{})
 	select {
 	case <-doneCh:
 	case <-time.After(5 * time.Second):

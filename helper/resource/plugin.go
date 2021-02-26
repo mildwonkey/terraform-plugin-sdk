@@ -11,14 +11,14 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/internal/plugintest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 	testing "github.com/mitchellh/go-testing-interface"
 )
 
-func runProviderCommand(t testing.T, f func() error, wd *plugintest.WorkingDir, factories map[string]func() (*schema.Provider, error), v5factories map[string]func() (tfprotov5.ProviderServer, error)) error {
+func runProviderCommand(t testing.T, f func() error, wd *plugintest.WorkingDir, factories map[string]func() (*schema.Provider, error), v6factories map[string]func() (tfprotov6.ProviderServer, error)) error {
 	// don't point to this as a test failure location
 	// point to whatever called it
 	t.Helper()
@@ -33,7 +33,7 @@ func runProviderCommand(t testing.T, f func() error, wd *plugintest.WorkingDir, 
 	// this is needed so Terraform doesn't default to expecting protocol 4;
 	// we're skipping the handshake because Terraform didn't launch the
 	// plugins.
-	os.Setenv("PLUGIN_PROTOCOL_VERSIONS", "5")
+	os.Setenv("PLUGIN_PROTOCOL_VERSIONS", "6")
 
 	// Terraform doesn't need to reach out to Checkpoint during testing.
 	wd.Setenv("CHECKPOINT_DISABLE", "1")
@@ -77,7 +77,7 @@ func runProviderCommand(t testing.T, f func() error, wd *plugintest.WorkingDir, 
 		// into a gRPC interface, and the logger just discards logs
 		// from go-plugin.
 		opts := &plugin.ServeOpts{
-			GRPCProviderFunc: func() tfprotov5.ProviderServer {
+			GRPCProviderFunc: func() tfprotov6.ProviderServer {
 				return schema.NewGRPCProviderServer(provider)
 			},
 			Logger: hclog.New(&hclog.LoggerOptions{
@@ -122,20 +122,20 @@ func runProviderCommand(t testing.T, f func() error, wd *plugintest.WorkingDir, 
 
 	// Now spin up gRPC servers for every plugin-go provider factory
 	// in the same way.
-	for providerName, factory := range v5factories {
+	for providerName, factory := range v6factories {
 		// providerName may be returned as terraform-provider-foo, and
 		// we need just foo. So let's fix that.
 		providerName = strings.TrimPrefix(providerName, "terraform-provider-")
 
 		// If the user has supplied the same provider in both
-		// ProviderFactories and ProtoV5ProviderFactories, they made a
+		// ProviderFactories and ProtoV6ProviderFactories, they made a
 		// mistake and we should exit early.
 		for _, ns := range namespaces {
 			reattachString := strings.TrimSuffix(host, "/") + "/" +
 				strings.TrimSuffix(ns, "/") + "/" +
 				providerName
 			if _, ok := reattachInfo[reattachString]; ok {
-				return fmt.Errorf("Provider %s registered in both TestCase.ProviderFactories and TestCase.ProtoV5ProviderFactories: please use one or the other, or supply a muxed provider to TestCase.ProtoV5ProviderFactories.", providerName)
+				return fmt.Errorf("Provider %s registered in both TestCase.ProviderFactories and TestCase.ProtoV6ProviderFactories: please use one or the other, or supply a muxed provider to TestCase.ProtoV6ProviderFactories.", providerName)
 			}
 		}
 
@@ -153,7 +153,7 @@ func runProviderCommand(t testing.T, f func() error, wd *plugintest.WorkingDir, 
 		// into a gRPC interface, and the logger just discards logs
 		// from go-plugin.
 		opts := &plugin.ServeOpts{
-			GRPCProviderFunc: func() tfprotov5.ProviderServer {
+			GRPCProviderFunc: func() tfprotov6.ProviderServer {
 				return provider
 			},
 			Logger: hclog.New(&hclog.LoggerOptions{

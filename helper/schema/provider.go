@@ -11,7 +11,7 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 
-	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/internal/configs/configschema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/meta"
@@ -173,14 +173,14 @@ func (p *Provider) SetMeta(v interface{}) {
 	p.meta = v
 }
 
-// GetSchema returns the config schema for the main provider
+// GetProviderSchema returns the config schema for the main provider
 // configuration, as would appear in a "provider" block in the
 // configuration files.
 //
 // Currently not all providers support schema. Callers must therefore
 // first call Resources and DataSources and ensure that at least one
 // resource or data source has the SchemaAvailable flag set.
-func (p *Provider) GetSchema(req *terraform.ProviderSchemaRequest) (*terraform.ProviderSchema, error) {
+func (p *Provider) GetProviderSchema(req *terraform.ProviderSchemaRequest) (*terraform.ProviderSchema, error) {
 	resourceTypes := map[string]*configschema.Block{}
 	dataSources := map[string]*configschema.Block{}
 
@@ -469,6 +469,6 @@ func (p *Provider) UserAgent(name, version string) string {
 }
 
 // GRPCProvider returns a gRPC server, for use with terraform-plugin-mux.
-func (p *Provider) GRPCProvider() tfprotov5.ProviderServer {
+func (p *Provider) GRPCProvider() tfprotov6.ProviderServer {
 	return NewGRPCProviderServer(p)
 }

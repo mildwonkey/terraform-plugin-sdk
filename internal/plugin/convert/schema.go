@@ -7,8 +7,8 @@ import (
 	"sort"
 
 	"github.com/hashicorp/go-cty/cty"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov5"
-	"github.com/hashicorp/terraform-plugin-go/tfprotov5/tftypes"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
+	"github.com/hashicorp/terraform-plugin-go/tfprotov6/tftypes"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/internal/configs/configschema"
 )
 
@@ -127,9 +127,9 @@ func ctyTypeFromTFType(in tftypes.Type) (cty.Type, error) {
 }
 
 // ConfigSchemaToProto takes a *configschema.Block and converts it to a
-// tfprotov5.SchemaBlock for a grpc response.
-func ConfigSchemaToProto(b *configschema.Block) *tfprotov5.SchemaBlock {
-	block := &tfprotov5.SchemaBlock{
+// tfprotov6.SchemaBlock for a grpc response.
+func ConfigSchemaToProto(b *configschema.Block) *tfprotov6.SchemaBlock {
+	block := &tfprotov6.SchemaBlock{
 		Description:     b.Description,
 		DescriptionKind: protoStringKind(b.DescriptionKind),
 		Deprecated:      b.Deprecated,
@@ -138,7 +138,7 @@ func ConfigSchemaToProto(b *configschema.Block) *tfprotov5.SchemaBlock {
 	for _, name := range sortedKeys(b.Attributes) {
 		a := b.Attributes[name]
 
-		attr := &tfprotov5.SchemaAttribute{
+		attr := &tfprotov6.SchemaAttribute{
 			Name:            name,
 			Description:     a.Description,
 			DescriptionKind: protoStringKind(a.DescriptionKind),
@@ -166,35 +166,35 @@ func ConfigSchemaToProto(b *configschema.Block) *tfprotov5.SchemaBlock {
 	return block
 }
 
-func protoStringKind(k configschema.StringKind) tfprotov5.StringKind {
+func protoStringKind(k configschema.StringKind) tfprotov6.StringKind {
 	switch k {
 	default:
 		log.Printf("[TRACE] unexpected configschema.StringKind: %d", k)
-		return tfprotov5.StringKindPlain
+		return tfprotov6.StringKindPlain
 	case configschema.StringPlain:
-		return tfprotov5.StringKindPlain
+		return tfprotov6.StringKindPlain
 	case configschema.StringMarkdown:
-		return tfprotov5.StringKindMarkdown
+		return tfprotov6.StringKindMarkdown
 	}
 }
 
-func protoSchemaNestedBlock(name string, b *configschema.NestedBlock) *tfprotov5.SchemaNestedBlock {
-	var nesting tfprotov5.SchemaNestedBlockNestingMode
+func protoSchemaNestedBlock(name string, b *configschema.NestedBlock) *tfprotov6.SchemaNestedBlock {
+	var nesting tfprotov6.SchemaNestedBlockNestingMode
 	switch b.Nesting {
 	case configschema.NestingSingle:
-		nesting = tfprotov5.SchemaNestedBlockNestingModeSingle
+		nesting = tfprotov6.SchemaNestedBlockNestingModeSingle
 	case configschema.NestingGroup:
-		nesting = tfprotov5.SchemaNestedBlockNestingModeGroup
+		nesting = tfprotov6.SchemaNestedBlockNestingModeGroup
 	case configschema.NestingList:
-		nesting = tfprotov5.SchemaNestedBlockNestingModeList
+		nesting = tfprotov6.SchemaNestedBlockNestingModeList
 	case configschema.NestingSet:
-		nesting = tfprotov5.SchemaNestedBlockNestingModeSet
+		nesting = tfprotov6.SchemaNestedBlockNestingModeSet
 	case configschema.NestingMap:
-		nesting = tfprotov5.SchemaNestedBlockNestingModeMap
+		nesting = tfprotov6.SchemaNestedBlockNestingModeMap
 	default:
-		nesting = tfprotov5.SchemaNestedBlockNestingModeInvalid
+		nesting = tfprotov6.SchemaNestedBlockNestingModeInvalid
 	}
-	return &tfprotov5.SchemaNestedBlock{
+	return &tfprotov6.SchemaNestedBlock{
 		TypeName: name,
 		Block:    ConfigSchemaToProto(&b.Block),
 		Nesting:  nesting,
@@ -205,7 +205,7 @@ func protoSchemaNestedBlock(name string, b *configschema.NestedBlock) *tfprotov5
 
 // ProtoToConfigSchema takes the GetSchema_Block from a grpc response and converts it
 // to a terraform *configschema.Block.
-func ProtoToConfigSchema(b *tfprotov5.SchemaBlock) *configschema.Block {
+func ProtoToConfigSchema(b *tfprotov6.SchemaBlock) *configschema.Block {
 	block := &configschema.Block{
 		Attributes: make(map[string]*configschema.Attribute),
 		BlockTypes: make(map[string]*configschema.NestedBlock),
@@ -242,30 +242,30 @@ func ProtoToConfigSchema(b *tfprotov5.SchemaBlock) *configschema.Block {
 	return block
 }
 
-func schemaStringKind(k tfprotov5.StringKind) configschema.StringKind {
+func schemaStringKind(k tfprotov6.StringKind) configschema.StringKind {
 	switch k {
 	default:
-		log.Printf("[TRACE] unexpected tfprotov5.StringKind: %d", k)
+		log.Printf("[TRACE] unexpected tfprotov6.StringKind: %d", k)
 		return configschema.StringPlain
-	case tfprotov5.StringKindPlain:
+	case tfprotov6.StringKindPlain:
 		return configschema.StringPlain
-	case tfprotov5.StringKindMarkdown:
+	case tfprotov6.StringKindMarkdown:
 		return configschema.StringMarkdown
 	}
 }
 
-func schemaNestedBlock(b *tfprotov5.SchemaNestedBlock) *configschema.NestedBlock {
+func schemaNestedBlock(b *tfprotov6.SchemaNestedBlock) *configschema.NestedBlock {
 	var nesting configschema.NestingMode
 	switch b.Nesting {
-	case tfprotov5.SchemaNestedBlockNestingModeSingle:
+	case tfprotov6.SchemaNestedBlockNestingModeSingle:
 		nesting = configschema.NestingSingle
-	case tfprotov5.SchemaNestedBlockNestingModeGroup:
+	case tfprotov6.SchemaNestedBlockNestingModeGroup:
 		nesting = configschema.NestingGroup
-	case tfprotov5.SchemaNestedBlockNestingModeList:
+	case tfprotov6.SchemaNestedBlockNestingModeList:
 		nesting = configschema.NestingList
-	case tfprotov5.SchemaNestedBlockNestingModeMap:
+	case tfprotov6.SchemaNestedBlockNestingModeMap:
 		nesting = configschema.NestingMap
-	case tfprotov5.SchemaNestedBlockNestingModeSet:
+	case tfprotov6.SchemaNestedBlockNestingModeSet:
 		nesting = configschema.NestingSet
 	default:
 		// In all other cases we'll leave it as the zero value (invalid) and
